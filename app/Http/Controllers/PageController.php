@@ -14,7 +14,7 @@ class PageController extends Controller
     {
         return view('home');
     }
-    
+
     /**
      * Display the about page
      */
@@ -27,10 +27,10 @@ class PageController extends Controller
             'coffee_consumed' => '50,000+',
             'happy_clients' => '100+'
         ];
-        
+
         return view('pages.about', compact('stats'));
     }
-    
+
     /**
      * Display the pricing page
      */
@@ -38,7 +38,7 @@ class PageController extends Controller
     {
         return view('pages.pricing');
     }
-    
+
     /**
      * Display the careers page
      */
@@ -67,10 +67,10 @@ class PageController extends Controller
                 'description' => 'Drive results for our clients through data-driven marketing campaigns.'
             ]
         ];
-        
+
         return view('pages.careers', compact('openings'));
     }
-    
+
     /**
      * Display the privacy policy
      */
@@ -78,7 +78,7 @@ class PageController extends Controller
     {
         return view('legal.privacy');
     }
-    
+
     /**
      * Display the terms of service
      */
@@ -86,7 +86,7 @@ class PageController extends Controller
     {
         return view('legal.terms');
     }
-    
+
     /**
      * Generate XML sitemap
      */
@@ -101,8 +101,9 @@ class PageController extends Controller
             ['loc' => route('contact'), 'priority' => '0.7', 'changefreq' => 'monthly'],
             ['loc' => route('pricing'), 'priority' => '0.8', 'changefreq' => 'weekly'],
         ];
-        
+
+        // In PageController::sitemap()
         return response()->view('sitemap', compact('urls'))
-            ->header('Content-Type', 'text/xml');
+            ->header('Content-Type', 'application/xml');
     }
 }
