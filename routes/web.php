@@ -118,3 +118,8 @@ Route::prefix('api')->name('api.')->group(function () {
 Route::fallback(function () {
     return view('errors.404');
 });
+
+Route::middleware(['throttle:contact'])->group(function () {
+    Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+    Route::post('/api/contact', [ContactController::class, 'apiSubmit'])->name('api.contact.submit');
+});
