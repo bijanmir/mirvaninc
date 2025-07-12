@@ -9,10 +9,22 @@
     <section class="bg-gradient-to-r from-purple-600 to-indigo-600 pt-32 pb-20">
         <div class="container mx-auto px-6">
             <div class="max-w-4xl mx-auto text-center text-white">
-                <h1 class="text-4xl md:text-6xl font-bold mb-6">Our Blog</h1>
-                <p class="text-xl md:text-2xl text-purple-100">
-                    Insights, trends, and expert advice on technology, marketing, and business growth
-                </p>
+                @if(isset($currentCategory))
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">{{ ucfirst($currentCategory) }} Articles</h1>
+                    <p class="text-xl md:text-2xl text-purple-100">
+                        Insights and articles about {{ strtolower($currentCategory) }}
+                    </p>
+                @elseif(isset($currentTag))
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">Articles tagged: {{ $currentTag }}</h1>
+                    <p class="text-xl md:text-2xl text-purple-100">
+                        All articles related to {{ $currentTag }}
+                    </p>
+                @else
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">Our Blog</h1>
+                    <p class="text-xl md:text-2xl text-purple-100">
+                        Insights, trends, and expert advice on technology, marketing, and business growth
+                    </p>
+                @endif
                 
                 {{-- Search Bar --}}
                 <div class="mt-8 max-w-2xl mx-auto">
@@ -27,12 +39,21 @@
                         </button>
                     </form>
                 </div>
+
+                {{-- Back to all posts link for filtered views --}}
+                @if(isset($currentCategory) || isset($currentTag))
+                    <div class="mt-6">
+                        <a href="{{ route('blog.index') }}" class="text-purple-200 hover:text-white transition">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to All Articles
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </section>
     
-    {{-- Featured Post --}}
-    @if(isset($featuredPost) && $featuredPost && !request('search'))
+    {{-- Featured Post (only show on main blog page) --}}
+    @if(isset($featuredPost) && $featuredPost && !request('search') && !isset($currentCategory) && !isset($currentTag))
     <section class="py-12 bg-gray-50">
         <div class="container mx-auto px-6">
             <div class="max-w-6xl mx-auto">
@@ -90,6 +111,22 @@
                                 for "{{ request('search') }}"
                             </p>
                         </div>
+                    @elseif(isset($currentCategory))
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold mb-2">{{ ucfirst($currentCategory) }} Articles</h2>
+                            <p class="text-gray-600">
+                                {{ $posts->total() }} article{{ $posts->total() !== 1 ? 's' : '' }} 
+                                in this category
+                            </p>
+                        </div>
+                    @elseif(isset($currentTag))
+                        <div class="mb-8">
+                            <h2 class="text-2xl font-bold mb-2">Articles tagged "{{ $currentTag }}"</h2>
+                            <p class="text-gray-600">
+                                {{ $posts->total() }} article{{ $posts->total() !== 1 ? 's' : '' }} 
+                                with this tag
+                            </p>
+                        </div>
                     @endif
                     
                     {{-- Blog Posts Grid --}}
@@ -102,9 +139,10 @@
                                              alt="{{ $post->title }}" 
                                              class="w-full h-48 object-cover">
                                         <div class="absolute top-4 left-4">
-                                            <span class="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
+                                            <a href="{{ route('blog.category', $post->category) }}"
+                                               class="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium hover:bg-white transition">
                                                 {{ $post->category }}
-                                            </span>
+                                            </a>
                                         </div>
                                     </div>
                                 @endif
@@ -139,9 +177,10 @@
                                         @if($post->tags && count($post->tags) > 0)
                                             <div class="flex gap-2">
                                                 @foreach(array_slice($post->tags, 0, 2) as $tag)
-                                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">
+                                                    <a href="{{ route('blog.tag', $tag) }}"
+                                                       class="bg-gray-100 hover:bg-purple-100 hover:text-purple-600 text-gray-600 px-2 py-1 rounded text-xs transition">
                                                         {{ $tag }}
-                                                    </span>
+                                                    </a>
                                                 @endforeach
                                             </div>
                                         @endif
@@ -155,10 +194,20 @@
                                 <p class="text-gray-500">
                                     @if(request('search'))
                                         Try adjusting your search terms or browse our categories.
+                                    @elseif(isset($currentCategory))
+                                        No articles in this category yet. Check back soon!
+                                    @elseif(isset($currentTag))
+                                        No articles with this tag yet. Check back soon!
                                     @else
                                         Check back soon for new content!
                                     @endif
                                 </p>
+                                @if(isset($currentCategory) || isset($currentTag) || request('search'))
+                                    <a href="{{ route('blog.index') }}" 
+                                       class="inline-block mt-4 bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition">
+                                        View All Articles
+                                    </a>
+                                @endif
                             </div>
                         @endforelse
                     </div>
@@ -180,7 +229,7 @@
                             <div class="space-y-2">
                                 @foreach($categories as $category)
                                     <a href="{{ route('blog.category', $category) }}" 
-                                       class="block py-2 px-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 transition">
+                                       class="block py-2 px-3 rounded-lg hover:bg-purple-50 hover:text-purple-600 transition {{ isset($currentCategory) && $currentCategory === $category ? 'bg-purple-100 text-purple-600' : '' }}">
                                         {{ $category }}
                                     </a>
                                 @endforeach
@@ -195,7 +244,7 @@
                             <div class="flex flex-wrap gap-2">
                                 @foreach($popularTags as $tag)
                                     <a href="{{ route('blog.tag', $tag) }}" 
-                                       class="bg-gray-100 hover:bg-purple-100 hover:text-purple-600 px-3 py-1 rounded-full text-sm transition">
+                                       class="bg-gray-100 hover:bg-purple-100 hover:text-purple-600 px-3 py-1 rounded-full text-sm transition {{ isset($currentTag) && $currentTag === $tag ? 'bg-purple-100 text-purple-600' : '' }}">
                                         {{ $tag }}
                                     </a>
                                 @endforeach
