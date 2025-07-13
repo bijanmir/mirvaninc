@@ -99,8 +99,7 @@ class ContactController extends Controller
             $headers = [
                 'X-Priority' => '1',
                 'X-MSMail-Priority' => 'High',
-                'Importance' => 'High',
-                'Reply-To' => $contact->email,
+                'Importance' => 'High'
             ];
             
             // Admin notification email
