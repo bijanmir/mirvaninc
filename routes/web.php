@@ -1,5 +1,4 @@
 <?php
-// routes/web.php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
@@ -8,6 +7,7 @@ use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,7 +71,9 @@ Route::prefix('blog')->name('blog.')->group(function () {
 */
 
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
-Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+Route::post('/contact', [ContactController::class, 'submit'])
+    ->middleware(['throttle:contact'])
+    ->name('contact.submit');
 
 /*
 |--------------------------------------------------------------------------
@@ -83,7 +85,9 @@ Route::prefix('payment')->name('payment.')->group(function () {
     Route::post('/create-checkout-session', [PaymentController::class, 'createCheckoutSession'])->name('checkout');
     Route::get('/success', [PaymentController::class, 'success'])->name('success');
     Route::get('/cancel', [PaymentController::class, 'cancel'])->name('cancel');
-    Route::post('/webhook', [PaymentController::class, 'webhook'])->name('webhook')->withoutMiddleware(['web', 'VerifyCsrfToken']);
+    Route::post('/webhook', [PaymentController::class, 'webhook'])
+        ->name('webhook')
+        ->withoutMiddleware(['web', 'VerifyCsrfToken']);
 });
 
 /*
@@ -104,10 +108,38 @@ Route::get('/sitemap.xml', [PageController::class, 'sitemap'])->name('sitemap');
 */
 
 Route::prefix('api')->name('api.')->group(function () {
-    Route::post('/contact', [ContactController::class, 'apiSubmit'])->name('contact.submit');
+    Route::post('/contact', [ContactController::class, 'apiSubmit'])
+        ->middleware(['throttle:contact'])
+        ->name('contact.submit');
     Route::get('/portfolio/load-more', [PortfolioController::class, 'loadMore'])->name('portfolio.load-more');
     Route::get('/blog/load-more', [BlogController::class, 'loadMore'])->name('blog.load-more');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes (Laravel Breeze)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/dashboard', function () {
+    return redirect()->route('admin.dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes - Include admin routes file
+|--------------------------------------------------------------------------
+*/
+
+require __DIR__.'/admin.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -117,9 +149,4 @@ Route::prefix('api')->name('api.')->group(function () {
 
 Route::fallback(function () {
     return view('errors.404');
-});
-
-Route::middleware(['throttle:contact'])->group(function () {
-    Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
-    Route::post('/api/contact', [ContactController::class, 'apiSubmit'])->name('api.contact.submit');
 });
