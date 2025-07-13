@@ -19,14 +19,14 @@ return [
     
     // Contact Information
     'contact' => [
-        'phone' => '(858) 555-0100',
-        'phone_link' => '+18585550100',
+        'phone' => '(619) 887-4315',
+        'phone_link' => '+16198874315',
         'email' => 'hello@mirvaninc.com',
         'address' => [
-            'street' => '1234 Technology Way',
-            'city' => 'La Jolla',
+            'street' => '9255 Towne Centre Drive',
+            'city' => 'San Diego',
             'state' => 'CA',
-            'zip' => '92037',
+            'zip' => '92122',
             'country' => 'United States',
             'coordinates' => [
                 'latitude' => 32.8328,
@@ -217,13 +217,13 @@ return [
     // Team Members
     'team' => [
         [
-            'name' => 'John Doe',
+            'name' => 'Bijan Mirvan',
             'position' => 'CEO & Founder',
             'bio' => 'Over 15 years of experience in enterprise technology.',
             'image' => 'team/john-doe.jpg',
         ],
         [
-            'name' => 'Jane Smith',
+            'name' => 'Stefano Bieler',
             'position' => 'CTO',
             'bio' => 'Expert in cloud architecture and scalable systems.',
             'image' => 'team/jane-smith.jpg',
