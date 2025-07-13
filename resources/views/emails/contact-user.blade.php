@@ -27,7 +27,7 @@
         </div>
         
         <div class="content">
-            <p>Hi <strong>{{ $data['first_name'] }}</strong>,</p>
+            <p>Hi <strong>{{ $contact->first_name }}</strong>,</p>
             
             <p>Thank you for reaching out to {{ config('site.name') }}! We've received your message and appreciate your interest in our services.</p>
             
@@ -35,15 +35,16 @@
             
             <div class="summary-box">
                 <h3 style="margin-top: 0; color: #4F46E5;">Your Message Summary:</h3>
-                <p><strong>Service Interest:</strong> {{ ucfirst(str_replace(['_', '-'], ' ', $data['service'])) }}</p>
-                <p><strong>Budget Range:</strong> ${{ str_replace(['k', '-'], ['000', ' - $'], $data['budget']) }}</p>
-                @if($data['phone'])
-                <p><strong>Phone:</strong> {{ $data['phone'] }}</p>
+                <p><strong>Service Interest:</strong> {{ ucfirst(str_replace(['_', '-'], ' ', $contact->service)) }}</p>
+                <p><strong>Budget Range:</strong> ${{ str_replace(['k', '-'], ['000', ' - $'], $contact->budget) }}</p>
+                @if($contact->phone)
+                <p><strong>Phone:</strong> {{ $contact->phone }}</p>
                 @endif
-                <p><strong>Reference ID:</strong> #{{ $data['id'] ?? 'N/A' }}</p>
+                <p><strong>Reference ID:</strong> #{{ $contact->id }}</p>
+                <p><strong>Submitted:</strong> {{ $contact->created_at->format('F j, Y \a\t g:i A') }}</p>
                 <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e7eb;">
                     <strong>Your Message:</strong><br>
-                    <em>{{ $data['message'] }}</em>
+                    <em>{{ $contact->message }}</em>
                 </div>
             </div>
             

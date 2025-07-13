@@ -22,7 +22,7 @@
     <div class="container">
         <div class="header">
             <h1>New Contact Form Submission</h1>
-            <p>Reference ID: #{{ $data['id'] }}</p>
+            <p>Reference ID: #{{ $contact->id }}</p>
         </div>
         
         <div class="content">
@@ -30,45 +30,45 @@
             
             <div class="field">
                 <span class="label">Name:</span>
-                <span class="value">{{ $data['first_name'] }} {{ $data['last_name'] }}</span>
+                <span class="value">{{ $contact->first_name }} {{ $contact->last_name }}</span>
             </div>
             
             <div class="field">
                 <span class="label">Email:</span>
-                <span class="value"><a href="mailto:{{ $data['email'] }}">{{ $data['email'] }}</a></span>
+                <span class="value"><a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a></span>
             </div>
             
-            @if($data['phone'])
+            @if($contact->phone)
             <div class="field">
                 <span class="label">Phone:</span>
-                <span class="value">{{ $data['phone'] }}</span>
+                <span class="value">{{ $contact->phone }}</span>
             </div>
             @endif
             
             <div class="field">
                 <span class="label">Service Interest:</span>
-                <span class="value">{{ ucfirst(str_replace('_', ' ', $data['service'])) }}</span>
+                <span class="value">{{ ucfirst(str_replace('_', ' ', $contact->service)) }}</span>
             </div>
             
             <div class="field">
                 <span class="label">Budget Range:</span>
-                <span class="value {{ $data['budget'] == '50k-100k' || $data['budget'] == '100k+' ? 'priority-high' : '' }}">
-                    ${{ $data['budget'] }}
+                <span class="value {{ $contact->budget == '50k-100k' || $contact->budget == '100k+' ? 'priority-high' : '' }}">
+                    ${{ $contact->budget }}
                 </span>
             </div>
             
             <div class="field">
                 <span class="label">Submitted:</span>
-                <span class="value">{{ \Carbon\Carbon::parse($data['created_at'])->format('F j, Y at g:i A') }}</span>
+                <span class="value">{{ $contact->created_at->format('F j, Y \a\t g:i A') }}</span>
             </div>
             
             <div class="message-box">
                 <h3>Message:</h3>
-                <p>{{ $data['message'] }}</p>
+                <p>{{ $contact->message }}</p>
             </div>
             
             <div style="margin-top: 30px; text-align: center;">
-                <a href="{{ url('/admin/contacts/' . $data['id']) }}" 
+                <a href="{{ url('/admin/contacts/' . $contact->id) }}" 
                    style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
                     View in Admin Panel
                 </a>
@@ -108,7 +108,7 @@
         </div>
         
         <div class="content">
-            <p>Dear {{ $data['first_name'] }},</p>
+            <p>Dear {{ $contact->first_name }},</p>
             
             <p>Thank you for reaching out to Mirvan Inc. We've successfully received your inquiry and appreciate your interest in our services.</p>
             
@@ -121,10 +121,10 @@
             
             <div class="summary">
                 <h3>Your Submission Summary:</h3>
-                <p><strong>Reference ID:</strong> #{{ $data['id'] }}</p>
-                <p><strong>Service Interest:</strong> {{ ucfirst(str_replace('_', ' ', $data['service'])) }}</p>
-                <p><strong>Budget Range:</strong> ${{ $data['budget'] }}</p>
-                <p><strong>Submitted on:</strong> {{ \Carbon\Carbon::parse($data['created_at'])->format('F j, Y at g:i A') }}</p>
+                <p><strong>Reference ID:</strong> #{{ $contact->id }}</p>
+                <p><strong>Service Interest:</strong> {{ ucfirst(str_replace('_', ' ', $contact->service)) }}</p>
+                <p><strong>Budget Range:</strong> ${{ $contact->budget }}</p>
+                <p><strong>Submitted on:</strong> {{ $contact->created_at->format('F j, Y \a\t g:i A') }}</p>
             </div>
             
             <p>In the meantime, feel free to explore our website for more information about our services:</p>
@@ -141,7 +141,7 @@
         
         <div class="footer">
             <p>© {{ date('Y') }} Mirvan Inc. All rights reserved.</p>
-            <p>This email was sent to {{ $data['email'] }} because you submitted a contact form on our website.</p>
+            <p>This email was sent to {{ $contact->email }} because you submitted a contact form on our website.</p>
             <p>If you did not submit this form, please let us know immediately.</p>
         </div>
     </div>
