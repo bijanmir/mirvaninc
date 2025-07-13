@@ -1,5 +1,5 @@
 <?php
-
+// app/Http/Controllers/ContactController.php
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
@@ -19,7 +19,7 @@ class ContactController extends Controller
     {
         return view('pages.contact');
     }
-    
+
     /**
      * Handle contact form submission
      */
@@ -43,96 +43,96 @@ class ContactController extends Controller
             ],
             'message' => 'required|string|max:2000'
         ]);
-        
+
         try {
             // Save to database
             $contact = Contact::create($validated);
-            
+
             // Log the submission
             Log::info('Contact form submission saved to database:', [
                 'id' => $contact->id,
                 'email' => $contact->email,
                 'service' => $contact->service
             ]);
-            
+
             // Send email notifications
             $emailSent = $this->sendNotificationEmails($contact);
-            
+
             if (!$emailSent) {
                 Log::warning('Contact form saved but emails could not be sent', [
                     'contact_id' => $contact->id
                 ]);
-                
+
                 // Still show success to user since data was saved
                 return redirect()->route('contact')
                     ->with('success', 'Thank you for your message! We\'ve received your inquiry (Reference #' . $contact->id . '). If you don\'t receive a confirmation email, please check your spam folder or contact us directly at ' . config('site.contact.email', 'hello@mirvaninc.com') . '.');
             }
-            
+
             // Redirect back with success message
             return redirect()->route('contact')
                 ->with('success', 'Thank you for your message! We\'ll get back to you within 24 hours. Your reference ID is #' . $contact->id . '.');
-                
+
         } catch (\Exception $e) {
             Log::error('Failed to save contact submission: ' . $e->getMessage(), [
                 'data' => $validated,
                 'error' => $e->getTraceAsString()
             ]);
-            
+
             return redirect()->route('contact')
                 ->withInput()
                 ->with('error', 'Sorry, there was an issue submitting your message. Please try again or contact us directly at ' . config('site.contact.email', 'hello@mirvaninc.com'));
         }
     }
-    
+
     /**
      * Send email notifications for contact form
      */
     private function sendNotificationEmails(Contact $contact)
     {
         $emailsSent = true;
-        
+
         try {
             // Get the admin email from config or use a default
             $adminEmail = config('site.contact.email', 'hello@mirvaninc.com');
-            
+
             // For ProtonMail, we need to ensure proper headers
             $headers = [
                 'X-Priority' => '1',
                 'X-MSMail-Priority' => 'High',
                 'Importance' => 'High',
-                'Reply-To' => $contact->email,
             ];
-            
+
+
             // Admin notification email
             Mail::send('emails.contact-admin', ['data' => $contact->toArray()], function ($message) use ($contact, $adminEmail, $headers) {
                 $message->to($adminEmail)
-                        ->subject('New Contact Form Submission from ' . $contact->full_name . ' (#' . $contact->id . ')')
-                        ->replyTo($contact->email, $contact->full_name)
-                        ->priority(1);
-                
-                // Add custom headers
+                    ->subject('New Contact Form Submission from ' . $contact->full_name . ' (#' . $contact->id . ')')
+                    ->replyTo($contact->email, $contact->full_name)
+                    ->priority(1);
+
                 foreach ($headers as $key => $value) {
                     $message->getHeaders()->addTextHeader($key, $value);
                 }
             });
-            
+
+
             Log::info('Admin notification email sent', [
                 'contact_id' => $contact->id,
                 'to' => $adminEmail
             ]);
-            
+
             // User confirmation email
             Mail::send('emails.contact-user', ['data' => $contact->toArray()], function ($message) use ($contact) {
                 $message->to($contact->email, $contact->full_name)
-                        ->subject('Thank you for contacting ' . config('site.name', 'Mirvan Inc'))
-                        ->priority(3);
+                    ->subject('Thank you for contacting ' . config('site.name', 'Mirvan Inc'))
+                    ->priority(3);
             });
-            
+
             Log::info('User confirmation email sent', [
                 'contact_id' => $contact->id,
                 'to' => $contact->email
             ]);
-            
+
         } catch (\Exception $e) {
             // Log error but don't fail the request
             Log::error('Failed to send contact emails: ' . $e->getMessage(), [
@@ -141,10 +141,10 @@ class ContactController extends Controller
             ]);
             $emailsSent = false;
         }
-        
+
         return $emailsSent;
     }
-    
+
     /**
      * Test email configuration (for debugging)
      */
@@ -152,15 +152,15 @@ class ContactController extends Controller
     {
         try {
             $testEmail = config('site.contact.email', 'hello@mirvaninc.com');
-            
+
             // Test with proper headers for ProtonMail
             Mail::raw('This is a test email from your Laravel application. If you receive this, your email configuration is working correctly!', function ($message) use ($testEmail) {
                 $message->to($testEmail)
-                        ->subject('Test Email from ' . config('site.name', 'Mirvan Inc'))
-                        ->from(config('mail.from.address'), config('mail.from.name'))
-                        ->priority(3);
+                    ->subject('Test Email from ' . config('site.name', 'Mirvan Inc'))
+                    ->from(config('mail.from.address'), config('mail.from.name'))
+                    ->priority(3);
             });
-            
+
             // Also test if we can retrieve current configuration
             $mailConfig = [
                 'mailer' => config('mail.default'),
@@ -169,13 +169,13 @@ class ContactController extends Controller
                 'from' => config('mail.from.address'),
                 'encryption' => config('mail.mailers.smtp.encryption'),
             ];
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Test email sent successfully to ' . $testEmail,
                 'config' => $mailConfig
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -188,6 +188,6 @@ class ContactController extends Controller
             ], 500);
         }
     }
-    
+
     // ... rest of your controller methods remain the same ...
 }
