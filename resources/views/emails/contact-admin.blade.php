@@ -3,47 +3,82 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Contact Form Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #1a1a1a; color: white; padding: 20px; text-align: center; }
+        .content { background-color: #f9f9f9; padding: 30px; border-radius: 5px; margin-top: 20px; }
+        .field { margin-bottom: 15px; }
+        .label { font-weight: bold; color: #555; }
+        .value { color: #333; margin-left: 10px; }
+        .message-box { background-color: white; padding: 15px; border-radius: 5px; margin-top: 20px; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+        .priority-high { color: #d9534f; font-weight: bold; }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4F46E5;">New Contact Form Submission</h2>
-        
-        <p>You have received a new contact form submission from your website.</p>
-        
-        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Name:</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ $data['first_name'] }} {{ $data['last_name'] }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Email:</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ $data['email'] }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Phone:</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ $data['phone'] ?? 'Not provided' }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Service Interest:</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ ucfirst($data['service']) }}</td>
-            </tr>
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Budget:</strong></td>
-                <td style="padding: 10px; border-bottom: 1px solid #ddd;">{{ $data['budget'] }}</td>
-            </tr>
-        </table>
-        
-        <h3 style="color: #4F46E5;">Message:</h3>
-        <div style="background-color: #f7f7f7; padding: 15px; border-radius: 5px;">
-            {{ $data['message'] }}
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Contact Form Submission</h1>
+            <p>Reference ID: #{{ $data['id'] }}</p>
         </div>
         
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+        <div class="content">
+            <h2>Contact Details</h2>
+            
+            <div class="field">
+                <span class="label">Name:</span>
+                <span class="value">{{ $data['first_name'] }} {{ $data['last_name'] }}</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Email:</span>
+                <span class="value"><a href="mailto:{{ $data['email'] }}">{{ $data['email'] }}</a></span>
+            </div>
+            
+            @if($data['phone'])
+            <div class="field">
+                <span class="label">Phone:</span>
+                <span class="value">{{ $data['phone'] }}</span>
+            </div>
+            @endif
+            
+            <div class="field">
+                <span class="label">Service Interest:</span>
+                <span class="value">{{ ucfirst(str_replace('_', ' ', $data['service'])) }}</span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Budget Range:</span>
+                <span class="value {{ $data['budget'] == '50k-100k' || $data['budget'] == '100k+' ? 'priority-high' : '' }}">
+                    ${{ $data['budget'] }}
+                </span>
+            </div>
+            
+            <div class="field">
+                <span class="label">Submitted:</span>
+                <span class="value">{{ \Carbon\Carbon::parse($data['created_at'])->format('F j, Y at g:i A') }}</span>
+            </div>
+            
+            <div class="message-box">
+                <h3>Message:</h3>
+                <p>{{ $data['message'] }}</p>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center;">
+                <a href="{{ url('/admin/contacts/' . $data['id']) }}" 
+                   style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                    View in Admin Panel
+                </a>
+            </div>
+        </div>
         
-        <p style="color: #666; font-size: 14px;">
-            This email was sent from the contact form on {{ config('app.url') }}
-        </p>
+        <div class="footer">
+            <p>This email was sent from the contact form at {{ config('app.url') }}</p>
+            <p>© {{ date('Y') }} Mirvan Inc. All rights reserved.</p>
+        </div>
     </div>
 </body>
 </html>
@@ -53,40 +88,62 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Thank you for contacting {{ config('site.name') }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank you for contacting Mirvan Inc</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #1a1a1a; color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; }
+        .summary { background-color: #f9f9f9; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; padding-top: 20px; border-top: 1px solid #eee; }
+        .button { display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+    </style>
 </head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4F46E5;">Thank You for Contacting {{ config('site.name') }}</h2>
-        
-        <p>Hi {{ $data['first_name'] }},</p>
-        
-        <p>Thank you for reaching out to us! We've received your message and appreciate your interest in our services.</p>
-        
-        <p>Our team will review your inquiry and get back to you within 24 hours. If you have an urgent request, please don't hesitate to call us at {{ config('site.contact.phone') }}.</p>
-        
-        <h3 style="color: #4F46E5;">Your Message Summary:</h3>
-        <div style="background-color: #f7f7f7; padding: 15px; border-radius: 5px;">
-            <p><strong>Service Interest:</strong> {{ ucfirst($data['service']) }}</p>
-            <p><strong>Budget Range:</strong> {{ $data['budget'] }}</p>
-            <p><strong>Message:</strong><br>{{ $data['message'] }}</p>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Thank You for Contacting Us!</h1>
+            <p>We've received your message</p>
         </div>
         
-        <p>In the meantime, feel free to:</p>
-        <ul>
-            <li>Check out our <a href="{{ config('app.url') }}/portfolio" style="color: #4F46E5;">portfolio</a> to see our recent work</li>
-            <li>Read our <a href="{{ config('app.url') }}/blog" style="color: #4F46E5;">blog</a> for insights and tips</li>
-            <li>Follow us on social media for updates</li>
-        </ul>
+        <div class="content">
+            <p>Dear {{ $data['first_name'] }},</p>
+            
+            <p>Thank you for reaching out to Mirvan Inc. We've successfully received your inquiry and appreciate your interest in our services.</p>
+            
+            <p><strong>What happens next?</strong></p>
+            <ul>
+                <li>Our team will review your message within the next 24 hours</li>
+                <li>We'll reach out to you via email or phone to discuss your project</li>
+                <li>We'll provide a tailored solution based on your needs and budget</li>
+            </ul>
+            
+            <div class="summary">
+                <h3>Your Submission Summary:</h3>
+                <p><strong>Reference ID:</strong> #{{ $data['id'] }}</p>
+                <p><strong>Service Interest:</strong> {{ ucfirst(str_replace('_', ' ', $data['service'])) }}</p>
+                <p><strong>Budget Range:</strong> ${{ $data['budget'] }}</p>
+                <p><strong>Submitted on:</strong> {{ \Carbon\Carbon::parse($data['created_at'])->format('F j, Y at g:i A') }}</p>
+            </div>
+            
+            <p>In the meantime, feel free to explore our website for more information about our services:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ url('/') }}" class="button">Visit Our Website</a>
+            </div>
+            
+            <p>If you have any urgent questions, please don't hesitate to reach out to us directly at <a href="mailto:hello@mirvaninc.com">hello@mirvaninc.com</a>.</p>
+            
+            <p>Best regards,<br>
+            The Mirvan Inc Team</p>
+        </div>
         
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
-        
-        <p style="color: #666; font-size: 14px;">
-            Best regards,<br>
-            The {{ config('site.name') }} Team<br>
-            {{ config('site.contact.email') }}<br>
-            {{ config('site.contact.phone') }}
-        </p>
+        <div class="footer">
+            <p>© {{ date('Y') }} Mirvan Inc. All rights reserved.</p>
+            <p>This email was sent to {{ $data['email'] }} because you submitted a contact form on our website.</p>
+            <p>If you did not submit this form, please let us know immediately.</p>
+        </div>
     </div>
 </body>
 </html>
