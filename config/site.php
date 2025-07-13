@@ -29,8 +29,8 @@ return [
             'zip' => '92122',
             'country' => 'United States',
             'coordinates' => [
-                'latitude' => 32.8328,
-                'longitude' => -117.2713,
+                'latitude' => 32.715736,
+                'longitude' => -117.161087,
             ]
         ],
         'hours' => 'Monday-Friday 9:00 AM - 6:00 PM PST',
