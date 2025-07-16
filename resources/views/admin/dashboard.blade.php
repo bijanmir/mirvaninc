@@ -1,174 +1,143 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    <title>@yield('title', 'Admin') - {{ config('site.name') }} Admin</title>
-    
-    {{-- Tailwind CSS --}}
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    {{-- Alpine.js --}}
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    {{-- Font Awesome --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    {{-- Custom Admin Styles --}}
-    <style>
-        [x-cloak] { display: none !important; }
-        .sidebar-link:hover {
-            background-color: rgba(79, 70, 229, 0.1);
-            color: rgb(79, 70, 229);
-        }
-        .sidebar-link.active {
-            background-color: rgba(79, 70, 229, 0.1);
-            color: rgb(79, 70, 229);
-            border-left: 3px solid rgb(79, 70, 229);
-        }
-    </style>
-    
-    @stack('styles')
-</head>
-<body class="bg-gray-100">
-    <div x-data="{ sidebarOpen: false }" class="flex h-screen">
-        {{-- Sidebar --}}
-        <div :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
-             class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
-            
-            {{-- Logo --}}
-            <div class="flex items-center justify-between h-16 px-6 bg-indigo-600">
-                <a href="{{ route('admin.dashboard') }}" class="text-xl font-bold text-white">
-                    {{ config('site.name') }} Admin
-                </a>
-                <button @click="sidebarOpen = false" class="lg:hidden text-white">
-                    <i class="fas fa-times"></i>
-                </button>
+@extends('layouts.admin')
+
+@section('title', 'Dashboard')
+
+@section('content')
+<div class="space-y-6">
+    <!-- Welcome Banner -->
+    <div class="animated-gradient rounded-2xl p-8 text-white shadow-2xl">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-bold mb-2">Welcome back, {{ Auth::user()->name }}! 👋</h2>
+                <p class="text-white/80">Here's what's happening with your business today.</p>
             </div>
-            
-            {{-- Navigation --}}
-            <nav class="mt-6">
-                <div class="px-4 space-y-1">
-                    {{-- Dashboard --}}
-                    <a href="{{ route('admin.dashboard') }}" 
-                       class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-3 py-2 text-sm font-medium rounded-lg transition">
-                        <i class="fas fa-tachometer-alt w-5 mr-3"></i>
-                        Dashboard
-                    </a>
-                    
-                    {{-- Contacts --}}
-                    <a href="{{ route('admin.contacts.index') }}" 
-                       class="sidebar-link {{ request()->routeIs('admin.contacts.*') ? 'active' : '' }} flex items-center px-3 py-2 text-sm font-medium rounded-lg transition">
-                        <i class="fas fa-address-book w-5 mr-3"></i>
-                        Contacts
-                        @php
-                            $newContacts = \App\Models\Contact::where('status', 'new')->count();
-                        @endphp
-                        @if($newContacts > 0)
-                            <span class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full">{{ $newContacts }}</span>
-                        @endif
-                    </a>
-                    
-                    {{-- Blog Posts --}}
-                    <a href="{{ route('admin.blog.index') }}" 
-                       class="sidebar-link {{ request()->routeIs('admin.blog.*') ? 'active' : '' }} flex items-center px-3 py-2 text-sm font-medium rounded-lg transition">
-                        <i class="fas fa-blog w-5 mr-3"></i>
-                        Blog Posts
-                    </a>
-                    
-                    {{-- Portfolio --}}
-                    <a href="{{ route('admin.portfolio.index') }}" 
-                       class="sidebar-link {{ request()->routeIs('admin.portfolio.*') ? 'active' : '' }} flex items-center px-3 py-2 text-sm font-medium rounded-lg transition">
-                        <i class="fas fa-briefcase w-5 mr-3"></i>
-                        Portfolio
-                    </a>
-                    
-                    {{-- Separator --}}
-                    <hr class="my-4">
-                    
-                    {{-- View Site --}}
-                    <a href="{{ route('home') }}" target="_blank" 
-                       class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 transition">
-                        <i class="fas fa-external-link-alt w-5 mr-3"></i>
-                        View Site
-                    </a>
-                </div>
-            </nav>
-        </div>
-        
-        {{-- Main Content --}}
-        <div class="flex-1 flex flex-col overflow-hidden">
-            {{-- Top Bar --}}
-            <header class="bg-white shadow-sm">
-                <div class="flex items-center justify-between h-16 px-6">
-                    <button @click="sidebarOpen = true" class="lg:hidden text-gray-600 hover:text-gray-900">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                    
-                    <h1 class="text-2xl font-semibold text-gray-800">
-                        @yield('page-title', 'Dashboard')
-                    </h1>
-                    
-                    {{-- User Dropdown --}}
-                    <div x-data="{ dropdownOpen: false }" class="relative">
-                        <button @click="dropdownOpen = !dropdownOpen" 
-                                class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-900">
-                            <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white mr-2">
-                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                            </div>
-                            {{ auth()->user()->name }}
-                            <i class="fas fa-chevron-down ml-2"></i>
-                        </button>
-                        
-                        <div x-show="dropdownOpen" 
-                             x-cloak
-                             @click.away="dropdownOpen = false"
-                             x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="transform opacity-0 scale-95"
-                             x-transition:enter-end="transform opacity-100 scale-100"
-                             x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="transform opacity-100 scale-100"
-                             x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                <i class="fas fa-user-circle mr-2"></i>Profile
-                            </a>
-                            <hr class="my-1">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            
-            {{-- Page Content --}}
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
-                <div class="container mx-auto px-6 py-8">
-                    {{-- Alerts --}}
-                    @if(session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
-                        </div>
-                    @endif
-                    
-                    @if(session('error'))
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('error') }}</span>
-                        </div>
-                    @endif
-                    
-                    @yield('content')
-                </div>
-            </main>
+            <div class="hidden md:block">
+                <i class="fas fa-chart-line text-6xl text-white/20"></i>
+            </div>
         </div>
     </div>
-    
-    @stack('scripts')
-</body>
-</html>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Projects -->
+        <div class="bg-white rounded-xl shadow-lg hover-lift p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-indigo-100 rounded-full opacity-20"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <span class="text-sm text-green-600 font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i>12%
+                    </span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ $portfolioCount ?? 24 }}</h3>
+                <p class="text-gray-600 text-sm">Total Projects</p>
+            </div>
+        </div>
+
+        <!-- New Contacts -->
+        <div class="bg-white rounded-xl shadow-lg hover-lift p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-purple-100 rounded-full opacity-20"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span class="text-sm text-green-600 font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i>8%
+                    </span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ $contactCount ?? 156 }}</h3>
+                <p class="text-gray-600 text-sm">New Contacts</p>
+            </div>
+        </div>
+
+        <!-- Blog Posts -->
+        <div class="bg-white rounded-xl shadow-lg hover-lift p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-pink-100 rounded-full opacity-20"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                    <span class="text-sm text-red-600 font-medium">
+                        <i class="fas fa-arrow-down mr-1"></i>3%
+                    </span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">{{ $blogCount ?? 48 }}</h3>
+                <p class="text-gray-600 text-sm">Blog Posts</p>
+            </div>
+        </div>
+
+        <!-- Page Views -->
+        <div class="bg-white rounded-xl shadow-lg hover-lift p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-100 rounded-full opacity-20"></div>
+            <div class="relative">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <span class="text-sm text-green-600 font-medium">
+                        <i class="fas fa-arrow-up mr-1"></i>24%
+                    </span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800">12.4K</h3>
+                <p class="text-gray-600 text-sm">Page Views</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Traffic Chart -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-800">Traffic Overview</h3>
+                <select class="text-sm border-gray-200 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                    <option>Last 7 days</option>
+                    <option>Last 30 days</option>
+                    <option>Last 90 days</option>
+                </select>
+            </div>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-6">Recent Activity</h3>
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-envelope text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800">New contact form submission</p>
+                        <p class="text-xs text-gray-500">John Doe - 5 minutes ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-blog text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800">New blog post published</p>
+                        <p class="text-xs text-gray-500">"10 Web Design Trends" - 2 hours ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-briefcase text-purple-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-800">Portfolio item updated</p>
+                        <p class="text-xs text-gray-500">E-commerce Platform - 1 day ago</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="w-10 h-10 bg-yellow-100 rounded-full flex items
